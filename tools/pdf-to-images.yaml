@@ -1,0 +1,79 @@
+identity:
+  name: "pdf-to-images"
+  author: "your-name"
+  label:
+    en_US: "PDF to Images Converter"
+    ja_JP: "PDF画像変換ツール"
+    zh_Hans: "PDF转图片工具"
+    pt_BR: "Conversor PDF para Imagens"
+description:
+  human:
+    en_US: "Convert PDF pages to high-quality images using PyMuPDF. Supports multiple PDFs and customizable resolution."
+    ja_JP: "PyMuPDFを使用してPDFページを高品質な画像に変換します。複数PDFと解像度カスタマイズに対応。"
+    zh_Hans: "使用PyMuPDF将PDF页面转换为高质量图像。支持多个PDF和可自定义分辨率。"
+    pt_BR: "Converte páginas PDF em imagens de alta qualidade usando PyMuPDF. Suporta múltiplos PDFs e resolução personalizável."
+  llm: "A tool that converts PDF files to images. Takes an array of PDF files and converts each page to an image with customizable DPI and format (PNG/JPEG). Returns base64-encoded images with metadata."
+parameters:
+  - name: files
+    type: files
+    required: true
+    label:
+      en_US: "PDF Files"
+      ja_JP: "PDFファイル"
+      zh_Hans: "PDF文件"
+      pt_BR: "Arquivos PDF"
+    human_description:
+      en_US: "Select one or more PDF files to convert to images"
+      ja_JP: "画像に変換するPDFファイルを1つまたは複数選択してください"
+      zh_Hans: "选择要转换为图像的一个或多个PDF文件"
+      pt_BR: "Selecione um ou mais arquivos PDF para converter em imagens"
+    llm_description: "Array of PDF files to be converted to images. Each page of each PDF will be converted to a separate image."
+    form: form
+  - name: dpi
+    type: number
+    required: false
+    default: 72
+    label:
+      en_US: "Resolution (DPI)"
+      ja_JP: "解像度 (DPI)"
+      zh_Hans: "分辨率 (DPI)"
+      pt_BR: "Resolução (DPI)"
+    human_description:
+      en_US: "Image resolution in DPI (dots per inch). Higher values produce better quality but larger files."
+      ja_JP: "DPI（ドット・パー・インチ）での画像解像度。高い値ほど品質が良くなりますがファイルサイズも大きくなります。"
+      zh_Hans: "以DPI（每英寸点数）为单位的图像分辨率。数值越高质量越好但文件越大。"
+      pt_BR: "Resolução da imagem em DPI (pontos por polegada). Valores maiores produzem melhor qualidade mas arquivos maiores."
+    llm_description: "Resolution for the output images in DPI. Default is 72. Common values: 72 (web), 150 (standard), 300 (high quality)."
+    form: llm
+  - name: image_format
+    type: select
+    required: false
+    default: "PNG"
+    options:
+      - value: "PNG"
+        label:
+          en_US: "PNG (Lossless)"
+          ja_JP: "PNG（可逆圧縮）"
+          zh_Hans: "PNG（无损压缩）"
+          pt_BR: "PNG (Sem Perda)"
+      - value: "JPEG"
+        label:
+          en_US: "JPEG (Compressed)"
+          ja_JP: "JPEG（圧縮）"
+          zh_Hans: "JPEG（压缩）"
+          pt_BR: "JPEG (Comprimido)"
+    label:
+      en_US: "Image Format"
+      ja_JP: "画像フォーマット"
+      zh_Hans: "图像格式"
+      pt_BR: "Formato de Imagem"
+    human_description:
+      en_US: "Output image format. PNG for lossless quality, JPEG for smaller file sizes."
+      ja_JP: "出力画像フォーマット。PNGは可逆圧縮、JPEGはファイルサイズが小さくなります。"
+      zh_Hans: "输出图像格式。PNG为无损质量，JPEG文件大小更小。"
+      pt_BR: "Formato da imagem de saída. PNG para qualidade sem perda, JPEG para arquivos menores."
+    llm_description: "Output format for the converted images. PNG provides lossless quality, JPEG provides smaller file sizes."
+    form: form
+extra:
+  python:
+    source: tools/pdf-to-images.py

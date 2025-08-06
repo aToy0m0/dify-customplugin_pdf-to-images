@@ -1,0 +1,35 @@
+version: 0.0.1
+type: plugin
+author: your-name
+name: pdf-to-images
+label:
+  en_US: pdf-to-images
+  ja_JP: pdf-to-images
+  zh_Hans: pdf-to-images
+  pt_BR: pdf-to-images
+description:
+  en_US: Convert PDF pages to images using PyMuPDF
+  ja_JP: Convert PDF pages to images using PyMuPDF
+  zh_Hans: Convert PDF pages to images using PyMuPDF
+  pt_BR: Convert PDF pages to images using PyMuPDF
+icon: icon.svg
+icon_dark: icon-dark.svg
+resource:
+  memory: 268435456
+  permission: {}
+plugins:
+  tools:
+    - provider/pdf-to-images.yaml
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main
+  minimum_dify_version: null
+created_at: 2025-08-03T20:44:49.725693379+09:00
+privacy: PRIVACY.md
+verified: false

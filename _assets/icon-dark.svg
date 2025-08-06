@@ -1,0 +1,20 @@
+<!-- PDF to Images Converter Plugin Icon (Dark Theme) -->
+<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- PDF文書アイコン部分（ダークテーマ用明るい色） -->
+  <rect x="6" y="12" width="12" height="16" rx="1" fill="#FC8181" stroke="#F56565" stroke-width="0.5"/>
+  <text x="12" y="18" font-family="Arial, sans-serif" font-size="3.5" font-weight="bold" fill="white" text-anchor="middle">PDF</text>
+  
+  <!-- 矢印（変換を示す）（ダークテーマ用明るい色） -->
+  <path d="M20 20 L24 20 M22 18 L24 20 L22 22" stroke="#E2E8F0" stroke-width="1.2" fill="none"/>
+  
+  <!-- 画像アイコン部分（2枚重ね）（ダークテーマ用明るい色） -->
+  <!-- 後ろの画像 -->
+  <rect x="28" y="19" width="7" height="5" rx="0.5" fill="#68D391" stroke="#48BB78" stroke-width="0.4"/>
+  <circle cx="29.5" cy="20.5" r="0.6" fill="#C6F6D5"/>
+  <path d="M28.3 23.5 L29.5 22.5 L31 23.8 L34.7 23.5" stroke="#48BB78" stroke-width="0.6" fill="none"/>
+  
+  <!-- 前の画像（少しずらして重ねる） -->
+  <rect x="26" y="16" width="7" height="5" rx="0.5" fill="#9AE6B4" stroke="#68D391" stroke-width="0.4"/>
+  <circle cx="27.5" cy="17.5" r="0.6" fill="#F0FFF4"/>
+  <path d="M26.3 20.5 L27.5 19.5 L29 20.8 L32.7 20.5" stroke="#68D391" stroke-width="0.6" fill="none"/>
+</svg>
