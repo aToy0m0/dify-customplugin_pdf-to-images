@@ -23,25 +23,39 @@ PDF to Images conversion is a crucial process in document processing workflows, 
 
 ## 🚀 Quick Start
 
-### Installation
+### Installation Methods
 
-1. **From Plugin Marketplace** (Recommended)
-   - Navigate to the Dify Plugin Marketplace
-   - Search for "PDF to Images"
-   - Click "Install" to add it to your workspace
+#### 1. From Plugin Marketplace (Recommended)
+- Navigate to the Dify Plugin Marketplace
+- Search for "PDF to Images"
+- Click "Install" to add it to your workspace
 
-2. **Manual Installation**
-   ```bash
-   # Clone the repository
-   git clone https://github.com/aToy0m0/dify-pdf-to-images-plugin.git
-   cd dify-pdf-to-images-plugin
-   
-   # Install dependencies
-   pip install -r requirements.txt
-   
-   # Package the plugin
-   ./dify-plugin plugin package ./pdf-to-images
-   ```
+#### 2. Manual Installation with Signature Verification (Production)
+```bash
+# Clone the repository
+git clone https://github.com/aToy0m0/dify-customplugin_pdf-to-images.git
+cd dify-customplugin_pdf-to-images/pdf-to-images
+
+# Install dependencies
+uv venv && source .venv/bin/activate  # または python -m venv .venv
+uv pip install -r requirements.txt
+
+# Package and sign the plugin
+../dify-plugin plugin package ./
+../dify-plugin signature sign ./pdf-to-images.difypkg -p ../keys/your_private_key.pem
+```
+
+#### 3. Development Mode Installation
+```bash
+# Setup development environment
+echo "INSTALL_METHOD=remote" > .env
+echo "REMOTE_INSTALL_URL=localhost:5003" >> .env
+echo "REMOTE_INSTALL_KEY=$(python3 -c 'import uuid; print(uuid.uuid4())')" >> .env
+echo "FILES_URL=http://localhost:8000" >> .env
+
+# Start debug server
+python -m main
+```
 
 ### Basic Usage
 
@@ -145,21 +159,85 @@ Dify tool implementation that:
 
 ### Local Development
 
-1. **Setup Environment**
-   ```bash
-   # Create .env file
-   INSTALL_METHOD=remote
-   REMOTE_INSTALL_URL=localhost:5003
-   REMOTE_INSTALL_KEY=your-plugin-key
-   FILES_URL=http://localhost:8000
-   ```
+#### Environment Setup
+```bash
+# Create and activate virtual environment
+uv venv && source .venv/bin/activate
 
-2. **Debug Mode**
-   ```bash
-   source .venv/bin/activate
-   cd pdf-to-images
-   python -m main
-   ```
+# Install dependencies
+uv pip install -r requirements.txt
+
+# Create .env file with development settings
+cat > .env << 'EOF'
+INSTALL_METHOD=remote
+REMOTE_INSTALL_URL=localhost:5003
+REMOTE_INSTALL_KEY=your-unique-uuid-key
+FILES_URL=http://localhost:8000
+LOG_LEVEL=INFO
+EOF
+```
+
+#### Debug Mode
+```bash
+# Start development server
+python -m main
+
+# In Dify admin panel, add development plugin:
+# Plugin Key: your-unique-uuid-key
+# Connection URL: localhost:5003
+```
+
+### Production Deployment
+
+#### Signature Key Generation
+```bash
+# Generate RSA key pair for plugin signing
+openssl genpkey -algorithm RSA -pkcs8 -out private_key.pem -pkeyopt rsa_keygen_bits:2048
+openssl rsa -pubout -in private_key.pem -out public_key.pem
+
+# Set appropriate permissions
+chmod 600 private_key.pem
+chmod 644 public_key.pem
+```
+
+#### Dify Server Configuration
+
+Create or update `docker-compose.override.yaml` in your Dify installation:
+
+```yaml
+services:
+  plugin_daemon:
+    environment:
+      # Enable signature verification for production security
+      FORCE_VERIFYING_SIGNATURE: true
+      THIRD_PARTY_SIGNATURE_VERIFICATION_ENABLED: true
+      THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/your_plugin_key.public.pem
+    volumes:
+      # Mount your public key for signature verification
+      - "./keys/your_plugin_key.public.pem:/app/storage/your_plugin_key.public.pem:ro"
+```
+
+#### Package Creation and Deployment
+```bash
+# 1. Package the plugin
+./dify-plugin plugin package ./pdf-to-images
+
+# 2. Sign the package
+./dify-plugin signature sign ./pdf-to-images.difypkg -p ./private_key.pem
+
+# 3. Verify signature (optional)
+./dify-plugin signature verify ./pdf-to-images.signed.difypkg -k ./public_key.pem
+
+# 4. Deploy to Dify
+# Upload pdf-to-images.signed.difypkg through Dify admin panel
+```
+
+#### Security Best Practices
+- **Never commit private keys** to version control
+- Store private keys with `600` permissions (owner read/write only)
+- Use environment variables for sensitive configuration
+- Enable signature verification in production environments
+- Regularly rotate signing keys for enhanced security
 
 ### Adding Custom Features
 
@@ -192,6 +270,72 @@ To extend the plugin functionality:
        "color_space": "RGB"  # Add color space info
    }
    ```
+
+## 🔧 Deployment & Operations
+
+### Automated Build Script
+
+Create `build_and_sign.sh` for automated packaging:
+
+```bash
+#!/bin/bash
+set -e
+
+PLUGIN_DIR="./pdf-to-images"
+PRIVATE_KEY="./keys/pdf_converter.private.pem"
+BUILD_DIR="./build"
+
+echo "🏗️  Packaging plugin..."
+./dify-plugin plugin package "$PLUGIN_DIR"
+
+echo "✍️  Adding signature..."
+./dify-plugin signature sign "${PLUGIN_DIR}.difypkg" -p "$PRIVATE_KEY"
+
+echo "📁 Moving to build directory..."
+mkdir -p "$BUILD_DIR"
+mv "${PLUGIN_DIR}.difypkg" "$BUILD_DIR/"
+mv "${PLUGIN_DIR}.signed.difypkg" "$BUILD_DIR/"
+
+echo "✅ Build complete!"
+ls -la "$BUILD_DIR"
+```
+
+### Environment Variables Reference
+
+| Variable | Purpose | Example | Required |
+|----------|---------|---------|----------|
+| `INSTALL_METHOD` | Plugin installation method | `remote` | Yes (dev) |
+| `REMOTE_INSTALL_URL` | Dify plugin daemon URL | `localhost:5003` | Yes (dev) |
+| `REMOTE_INSTALL_KEY` | Unique plugin identifier | UUID v4 | Yes (dev) |
+| `FILES_URL` | Dify file server URL | `http://localhost:8000` | Yes |
+| `LOG_LEVEL` | Logging verbosity | `INFO`, `DEBUG` | No |
+| `FORCE_VERIFYING_SIGNATURE` | Enforce signature validation | `true` | Yes (prod) |
+| `THIRD_PARTY_SIGNATURE_VERIFICATION_ENABLED` | Enable third-party plugin signatures | `true` | Yes (prod) |
+| `THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS` | Path to public key for verification | `/app/storage/key.public.pem` | Yes (prod) |
+
+### Version Management
+
+Update plugin version in `manifest.yaml`:
+
+```yaml
+version: "1.0.1"  # Semantic versioning: MAJOR.MINOR.PATCH
+```
+
+Release workflow:
+```bash
+# 1. Update version
+sed -i 's/version: "1.0.0"/version: "1.0.1"/' manifest.yaml
+
+# 2. Create git tag
+git tag -a v1.0.1 -m "Release version 1.0.1"
+git push origin v1.0.1
+
+# 3. Build and sign
+./build_and_sign.sh
+
+# 4. Create GitHub release
+gh release create v1.0.1 ./build/*.signed.difypkg --notes "Bug fixes and improvements"
+```
 
 ## 🔧 API Reference
 
@@ -287,19 +431,62 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### Development Issues
+
+**Issue**: "handshake failed, invalid key"
+```bash
+# Generate new plugin key
+python3 -c "import uuid; print(str(uuid.uuid4()))"
+# Update REMOTE_INSTALL_KEY in .env file with new UUID
+```
+
+**Issue**: "Connection refused" error
+```bash
+# Check Dify server connectivity
+curl -I http://localhost:8000/health
+netstat -tuln | grep :5003
+
+# Update FILES_URL in .env if needed
+echo "FILES_URL=http://localhost:8000" >> .env
+```
+
+**Issue**: "Failed to parse response from plugin daemon"
+- **Cause**: Invalid YAML parameter types
+- **Solution**: Ensure parameter types match Dify specifications (use `files` not `array[file]`)
+
+### Production Issues
+
+**Issue**: "Signature verification failed"
+```bash
+# Regenerate key pair
+openssl genpkey -algorithm RSA -pkcs8 -out new_private.pem -pkeyopt rsa_keygen_bits:2048
+openssl rsa -pubout -in new_private.pem -out new_public.pem
+
+# Re-sign plugin
+./dify-plugin signature sign plugin.difypkg -p new_private.pem
+
+# Update docker-compose.override.yaml with new public key path
+```
+
+**Issue**: "Plugin not loading in production"
+- Verify signature verification is properly configured in `docker-compose.override.yaml`
+- Check public key file permissions and path mounting
+- Ensure `FORCE_VERIFYING_SIGNATURE: true` is set
+
+### Runtime Issues
 
 **Issue**: "変換できるPDFファイルがありませんでした"
 - **Solution**: Ensure PDF files are valid and not corrupted. Check file permissions.
-
-**Issue**: "Connection refused" error
-- **Solution**: Check network connectivity and Dify server configuration. Plugin will attempt fallback URLs automatically.
 
 **Issue**: Images appear blurry or pixelated
 - **Solution**: Increase DPI setting (try 150 or 300 for higher quality)
 
 **Issue**: Large PDFs cause timeout
 - **Solution**: Process PDFs in smaller batches or reduce DPI for faster processing
+
+**Issue**: "Request URL is missing 'http://' or 'https://' protocol"
+- **Cause**: Dynamic file processing fallback issue
+- **Solution**: Check FILES_URL configuration and network connectivity
 
 ### Debug Mode
 
@@ -317,9 +504,32 @@ logging.basicConfig(level=logging.DEBUG)
 - **File Size Limits**: No hard limits, but consider memory constraints for very large PDFs
 - **Concurrent Processing**: Plugin handles multiple PDFs sequentially for stability
 
+## 📋 Production Checklist
+
+### Security Checklist
+- [ ] Private keys are properly secured (600 permissions)
+- [ ] `.env` files are excluded from version control
+- [ ] Plugin keys are sufficiently complex (UUID v4)
+- [ ] HTTPS is used in production environments
+- [ ] Signature verification is enabled (`FORCE_VERIFYING_SIGNATURE: true`)
+
+### Functionality Checklist
+- [ ] All required parameters are properly validated
+- [ ] Error handling is implemented for all edge cases
+- [ ] Logging is configured at appropriate levels
+- [ ] Memory usage is optimized for large file processing
+- [ ] Plugin works with different file.blob types (bytes/URLs)
+
+### Documentation Checklist
+- [ ] README.md covers installation and usage
+- [ ] API specifications are up to date
+- [ ] Troubleshooting guide is comprehensive
+- [ ] Version information is accurate
+- [ ] Deployment guide is included
+
 ## 🔄 Version History
 
-- **v1.0.0**: Current version with dynamic file processing and multi-format support
+- **v1.0.0**: Current version with dynamic file processing, multi-format support, and production deployment
 - **v0.9.0**: Beta version with basic PDF conversion capabilities
 
 
