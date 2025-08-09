@@ -190,10 +190,26 @@ python -m main
 ### Production Deployment
 
 #### Signature Key Generation
+
+**Method 1: Official Dify Command (Recommended)**
 ```bash
-# Generate RSA key pair for plugin signing
-openssl genpkey -algorithm RSA -pkcs8 -out private_key.pem -pkeyopt rsa_keygen_bits:2048
-openssl rsa -pubout -in private_key.pem -out public_key.pem
+# Generate key pair using official Dify plugin CLI
+./dify-plugin signature generate -f your_key_pair
+
+# Generated files:
+# your_key_pair.private.pem (private key)
+# your_key_pair.public.pem (public key)
+
+# Set appropriate permissions
+chmod 600 your_key_pair.private.pem
+chmod 644 your_key_pair.public.pem
+```
+
+**Method 2: OpenSSL (Alternative)**
+```bash
+# Generate RSA key pair manually
+openssl genrsa -out private_key.pem 2048
+openssl rsa -in private_key.pem -pubout -out public_key.pem
 
 # Set appropriate permissions
 chmod 600 private_key.pem
@@ -211,26 +227,36 @@ services:
       # Enable signature verification for production security
       FORCE_VERIFYING_SIGNATURE: true
       THIRD_PARTY_SIGNATURE_VERIFICATION_ENABLED: true
-      THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/your_plugin_key.public.pem
+      THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/your_key_pair.public.pem
     volumes:
       # Mount your public key for signature verification
-      - "./keys/your_plugin_key.public.pem:/app/storage/your_plugin_key.public.pem:ro"
+      - "./your_key_pair.public.pem:/app/storage/your_key_pair.public.pem:ro"
 ```
+
+**Important Notes:**
+- Place the public key file (`your_key_pair.public.pem`) in the same directory as `docker-compose.override.yaml`
+- The volume mount maps the host file to the container path referenced in the environment variable
+- Restart Dify services after updating the configuration: `docker compose down && docker compose up -d`
 
 #### Package Creation and Deployment
 ```bash
 # 1. Package the plugin
 ./dify-plugin plugin package ./pdf-to-images
 
-# 2. Sign the package
-./dify-plugin signature sign ./pdf-to-images.difypkg -p ./private_key.pem
+# 2. Sign the package (using official generated keys)
+./dify-plugin signature sign ./pdf-to-images.difypkg -p ./your_key_pair.private.pem
 
-# 3. Verify signature (optional)
-./dify-plugin signature verify ./pdf-to-images.signed.difypkg -k ./public_key.pem
+# 3. Verify signature (optional but recommended)
+./dify-plugin signature verify ./pdf-to-images.signed.difypkg -p ./your_key_pair.public.pem
 
 # 4. Deploy to Dify
 # Upload pdf-to-images.signed.difypkg through Dify admin panel
 ```
+
+**Expected Output:**
+- `pdf-to-images.difypkg`: Original plugin package
+- `pdf-to-images.signed.difypkg`: Signed plugin package ready for deployment
+- Successful verification confirms the signature is valid
 
 #### Security Best Practices
 - **Never commit private keys** to version control
@@ -282,7 +308,7 @@ Create `build_and_sign.sh` for automated packaging:
 set -e
 
 PLUGIN_DIR="./pdf-to-images"
-PRIVATE_KEY="./keys/pdf_converter.private.pem"
+PRIVATE_KEY="./your_key_pair.private.pem"  # Updated to use official key naming
 BUILD_DIR="./build"
 
 echo "🏗️  Packaging plugin..."
@@ -291,6 +317,9 @@ echo "🏗️  Packaging plugin..."
 echo "✍️  Adding signature..."
 ./dify-plugin signature sign "${PLUGIN_DIR}.difypkg" -p "$PRIVATE_KEY"
 
+echo "🔍 Verifying signature..."
+./dify-plugin signature verify "${PLUGIN_DIR}.signed.difypkg" -p "./your_key_pair.public.pem"
+
 echo "📁 Moving to build directory..."
 mkdir -p "$BUILD_DIR"
 mv "${PLUGIN_DIR}.difypkg" "$BUILD_DIR/"
@@ -298,6 +327,13 @@ mv "${PLUGIN_DIR}.signed.difypkg" "$BUILD_DIR/"
 
 echo "✅ Build complete!"
 ls -la "$BUILD_DIR"
+```
+
+**Usage:**
+```bash
+# Make script executable and run
+chmod +x build_and_sign.sh
+./build_and_sign.sh
 ```
 
 ### Environment Variables Reference
@@ -311,7 +347,7 @@ ls -la "$BUILD_DIR"
 | `LOG_LEVEL` | Logging verbosity | `INFO`, `DEBUG` | No |
 | `FORCE_VERIFYING_SIGNATURE` | Enforce signature validation | `true` | Yes (prod) |
 | `THIRD_PARTY_SIGNATURE_VERIFICATION_ENABLED` | Enable third-party plugin signatures | `true` | Yes (prod) |
-| `THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS` | Path to public key for verification | `/app/storage/key.public.pem` | Yes (prod) |
+| `THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS` | Path to public key for verification | `/app/storage/your_key_pair.public.pem` | Yes (prod) |
 
 ### Version Management
 
@@ -458,14 +494,18 @@ echo "FILES_URL=http://localhost:8000" >> .env
 
 **Issue**: "Signature verification failed"
 ```bash
-# Regenerate key pair
-openssl genpkey -algorithm RSA -pkcs8 -out new_private.pem -pkeyopt rsa_keygen_bits:2048
-openssl rsa -pubout -in new_private.pem -out new_public.pem
+# Regenerate key pair using official command (recommended)
+./dify-plugin signature generate -f new_key_pair
 
-# Re-sign plugin
-./dify-plugin signature sign plugin.difypkg -p new_private.pem
+# Alternative: Use OpenSSL
+openssl genrsa -out new_private.pem 2048
+openssl rsa -in new_private.pem -pubout -out new_public.pem
+
+# Re-sign plugin with new key
+./dify-plugin signature sign plugin.difypkg -p new_key_pair.private.pem
 
 # Update docker-compose.override.yaml with new public key path
+# THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/new_key_pair.public.pem
 ```
 
 **Issue**: "Plugin not loading in production"

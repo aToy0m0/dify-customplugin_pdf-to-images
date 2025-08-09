@@ -51,3 +51,4 @@ Thumbs.db
 # Test files
 test-data/
 EOF < /dev/null
+.env
