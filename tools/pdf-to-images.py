@@ -58,8 +58,13 @@ class PdfToImagesTool(Tool):
             # file.blobでの処理に失敗した場合、file.urlを使用（LlamaParse Advanced style）
             if hasattr(file, 'url') and file.url:
                 logger.info(f"🔄 Fallback to file.url: {file.url}")
+                
+                # Docker内部ネットワーク用にURLを修正
+                modified_url = self._fix_docker_url(file.url)
+                logger.info(f"Modified URL for Docker network: {modified_url}")
+                
                 try:
-                    response = requests.get(file.url, timeout=30)
+                    response = requests.get(modified_url, timeout=30)
                     response.raise_for_status()
                     logger.info(f"✅ Downloaded {len(response.content)} bytes from URL")
                     file_bytes = io.BytesIO(response.content)
@@ -70,6 +75,32 @@ class PdfToImagesTool(Tool):
             else:
                 logger.error(f"No file.url available, blob error: {blob_error}")
                 raise Exception(f"ファイルにアクセスできません: {blob_error}")
+    
+    def _get_docker_hosts(self):
+        """
+        Docker Composeサービス名の優先順位リスト
+        実際のコンテナ構成に基づく
+        """
+        return [
+            'nginx',        # docker-nginx-1 (Port 80)
+            'api',          # docker-api-1 (Port 5001)  
+            'web',          # docker-web-1 (Port 3000)
+            'dify-api',     # 代替名
+            'dify-web',     # 代替名
+        ]
+    
+    def _fix_docker_url(self, url: str) -> str:
+        """
+        DockerコンテナネットワークでのURL修正
+        localhost を実際のサービス名に変換
+        """
+        if 'localhost' in url:
+            # nginxを最優先で使用（Port 80でHTTPサーバーが動作）
+            modified_url = url.replace('localhost', 'nginx')
+            logger.info(f"Docker URL fix: {url} → {modified_url}")
+            return modified_url
+        
+        return url
     
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage]:
         """
