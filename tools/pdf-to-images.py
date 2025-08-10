@@ -23,74 +23,102 @@ class PdfToImagesTool(Tool):
     def _open_pdf_from_file(self, file: File):
         """
         Difyファイルオブジェクトから動的にPDFを開く
-        file.blobの型に応じて適切な処理を行う
+        公式プラグイン解析に基づく最適化版
         """
+        logger.info(f"File processing: {file.filename}, blob type: {type(file.blob)}")
+        
         if isinstance(file.blob, bytes):
-            # バイナリデータの場合（comfyui, mineru等のパターン）
-            logger.info("Processing file.blob as binary data")
+            # バイナリデータの場合（推奨: comfyui, mineru等のパターン）
+            logger.info(f"✅ Processing as binary data ({len(file.blob)} bytes)")
             file_bytes = io.BytesIO(file.blob)
             return fitz.open(stream=file_bytes, filetype="pdf")
             
         elif isinstance(file.blob, str):
-            # ファイルパス/URLの場合（llama_parse等のパターン）
-            logger.info(f"Processing file.blob as string path/URL: {file.blob}")
+            # 文字列の場合（llama_parse等の特殊パターン）
+            logger.info(f"⚠️ Processing as string: {file.blob[:100]}...")
             
+            # 完全なHTTP/HTTPS URLの場合
             if file.blob.startswith(('http://', 'https://')):
-                # HTTP URLの場合
-                logger.info("Downloading PDF from HTTP URL")
-                response = requests.get(file.blob)
-                response.raise_for_status()
-                file_bytes = io.BytesIO(response.content)
-                return fitz.open(stream=file_bytes, filetype="pdf")
-                
-            elif file.blob.startswith('/files/'):
-                # Dify内部ファイルURLの場合
-                logger.info("Processing Dify internal file URL")
-                files_url = os.getenv('FILES_URL', 'http://localhost:80')
-                full_url = f"{files_url}{file.blob}"
-                logger.info(f"Constructed full URL: {full_url}")
-                
+                logger.info("📥 Downloading from HTTP URL")
                 try:
-                    response = requests.get(full_url, timeout=30)
+                    response = requests.get(file.blob, timeout=30)
                     response.raise_for_status()
                     file_bytes = io.BytesIO(response.content)
                     return fitz.open(stream=file_bytes, filetype="pdf")
-                except requests.exceptions.ConnectionError as e:
-                    logger.error(f"Connection failed to {full_url}: {e}")
-                    # フォールバック: 他のポートを試行
-                    fallback_urls = [
-                        f"http://localhost:8000{file.blob}",
-                        f"http://localhost:5000{file.blob}",
-                        f"http://localhost:3000{file.blob}",
-                        f"http://127.0.0.1:80{file.blob}",
-                    ]
-                    
-                    for fallback_url in fallback_urls:
-                        try:
-                            logger.info(f"Trying fallback URL: {fallback_url}")
-                            response = requests.get(fallback_url, timeout=10)
-                            response.raise_for_status()
-                            file_bytes = io.BytesIO(response.content)
-                            return fitz.open(stream=file_bytes, filetype="pdf")
-                        except Exception as fallback_error:
-                            logger.info(f"Fallback URL {fallback_url} failed: {fallback_error}")
-                            continue
-                    
-                    raise Exception(f"All file URL attempts failed. Original error: {e}")
                 except Exception as e:
-                    logger.error(f"HTTP request failed: {e}")
-                    raise
-                
-            else:
-                # ローカルファイルパスの場合
-                logger.info("Processing as local file path")
+                    logger.error(f"❌ HTTP download failed: {e}")
+                    raise Exception(f"Cannot download file: {e}")
+            
+            # ローカルファイルパス（llama_parse style）  
+            elif not file.blob.startswith('/files/'):
+                logger.info("📂 Attempting local file path")
                 try:
                     return fitz.open(file.blob)
                 except Exception as e:
-                    logger.error(f"Failed to open file directly: {e}")
-                    # 最後の手段: file.blobをそのまま試す（llama_parseパターン）
-                    logger.info("Trying to use file.blob as direct file path (llama_parse pattern)")
-                    return fitz.open(file.blob)
+                    logger.error(f"❌ Local file access failed: {e}")
+                    raise Exception(f"Cannot access file: {file.blob}")
+                    
+            # Dify内部パスの場合（最後のフォールバック）
+            else:  # file.blob.startswith('/files/')
+                logger.warning("🔄 Attempting Dify internal file server (fallback)")
+                
+                # 包括的なベースURL一覧（優先順位順）
+                base_urls = [
+                    os.getenv('FILES_URL', 'http://localhost'),  # 環境変数優先
+                    'http://localhost',           # 標準（ポートなし）
+                    'http://localhost:80',        # HTTP標準ポート
+                    'http://localhost:8000',      # 開発用ポート
+                    'http://localhost:5000',      # Flask標準
+                    'http://localhost:3000',      # Node.js標準
+                    'http://127.0.0.1',          # IP直接（ポートなし）
+                    'http://127.0.0.1:80',       # IP + HTTP標準ポート
+                    'http://127.0.0.1:8000',     # IP + 開発ポート
+                    'http://dify-web',            # Docker内部ネットワーク
+                    'http://nginx',               # Nginx経由
+                    'http://api',                 # APIサーバー直接
+                    'http://dify-api',            # Dify APIサーバー
+                ]
+                
+                successful_url = None
+                last_error = None
+                
+                for base_url in base_urls:
+                    full_url = f"{base_url}{file.blob}"
+                    try:
+                        logger.info(f"Attempting: {full_url}")
+                        response = requests.get(full_url, timeout=15)
+                        
+                        if response.status_code == 200 and len(response.content) > 0:
+                            logger.info(f"✅ Success with: {full_url}")
+                            file_bytes = io.BytesIO(response.content)
+                            successful_url = full_url
+                            return fitz.open(stream=file_bytes, filetype="pdf")
+                        else:
+                            logger.warning(f"❌ HTTP {response.status_code} from: {full_url}")
+                            
+                    except requests.exceptions.ConnectionError as e:
+                        logger.debug(f"🔌 Connection refused: {full_url}")
+                        last_error = e
+                        continue
+                    except requests.exceptions.Timeout as e:
+                        logger.debug(f"⏰ Timeout: {full_url}")
+                        last_error = e
+                        continue
+                    except Exception as e:
+                        logger.debug(f"❓ Other error for {full_url}: {type(e).__name__}: {e}")
+                        last_error = e
+                        continue
+                
+                # すべて失敗した場合の詳細エラー
+                error_msg = (f"❌ Cannot access Dify file server. Tried {len(base_urls)} URLs.\n"
+                           f"File path: {file.blob}\n"
+                           f"Last error: {type(last_error).__name__}: {last_error}\n"
+                           f"💡 Solutions:\n"
+                           f"1. Check if Dify file server is running\n"
+                           f"2. Set FILES_URL environment variable\n"
+                           f"3. Upload files as binary data instead of file paths")
+                logger.error(error_msg)
+                raise Exception(error_msg)
                 
         else:
             raise ValueError(f"Unsupported file.blob type: {type(file.blob)}")
