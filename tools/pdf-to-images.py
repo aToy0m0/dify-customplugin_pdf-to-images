@@ -9,9 +9,12 @@ import requests
 from dify_plugin import Tool
 from dify_plugin.entities.tool import ToolInvokeMessage
 from dify_plugin.file.file import File
+from dify_plugin.config.logger_format import plugin_logger_handler
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(plugin_logger_handler)
 
 
 class ToolParameters(BaseModel):
@@ -22,106 +25,51 @@ class ToolParameters(BaseModel):
 class PdfToImagesTool(Tool):
     def _open_pdf_from_file(self, file: File):
         """
-        Difyファイルオブジェクトから動的にPDFを開く
-        公式プラグイン解析に基づく最適化版
+        公式プラグインパターンに基づく堅牢なファイル処理
+        優先順位: bytes > str (path) > file.url (HTTP)
         """
-        logger.info(f"File processing: {file.filename}, blob type: {type(file.blob)}")
+        logger.info(f"File processing: {file.filename}")
         
-        if isinstance(file.blob, bytes):
-            # バイナリデータの場合（推奨: comfyui, mineru等のパターン）
-            logger.info(f"✅ Processing as binary data ({len(file.blob)} bytes)")
-            file_bytes = io.BytesIO(file.blob)
-            return fitz.open(stream=file_bytes, filetype="pdf")
+        try:
+            # パターン1: file.blob が bytes の場合（最も一般的）
+            if isinstance(file.blob, bytes):
+                logger.info(f"✅ Processing as binary data ({len(file.blob)} bytes)")
+                file_bytes = io.BytesIO(file.blob)
+                return fitz.open(stream=file_bytes, filetype="pdf")
             
-        elif isinstance(file.blob, str):
-            # 文字列の場合（llama_parse等の特殊パターン）
-            logger.info(f"⚠️ Processing as string: {file.blob[:100]}...")
-            
-            # 完全なHTTP/HTTPS URLの場合
-            if file.blob.startswith(('http://', 'https://')):
-                logger.info("📥 Downloading from HTTP URL")
+            # パターン2: file.blob が str の場合（ファイルパス）
+            elif isinstance(file.blob, str):
+                logger.info(f"📂 Processing as file path: {file.blob[:100]}...")
                 try:
-                    response = requests.get(file.blob, timeout=30)
+                    # 直接ファイルパスとしてアクセス（llama_parse style）
+                    return fitz.open(file.blob)
+                except Exception as path_error:
+                    logger.warning(f"File path access failed: {path_error}")
+                    # file.blobがパスとして無効な場合、file.urlを試行
+                    raise path_error
+            
+            # パターン3: その他の型の場合
+            else:
+                logger.warning(f"⚠️ Unsupported blob type: {type(file.blob)}")
+                # file.blobが使用できない場合、file.urlにフォールバック
+                raise ValueError(f"Unsupported file.blob type: {type(file.blob)}")
+                
+        except Exception as blob_error:
+            # file.blobでの処理に失敗した場合、file.urlを使用（LlamaParse Advanced style）
+            if hasattr(file, 'url') and file.url:
+                logger.info(f"🔄 Fallback to file.url: {file.url}")
+                try:
+                    response = requests.get(file.url, timeout=30)
                     response.raise_for_status()
+                    logger.info(f"✅ Downloaded {len(response.content)} bytes from URL")
                     file_bytes = io.BytesIO(response.content)
                     return fitz.open(stream=file_bytes, filetype="pdf")
-                except Exception as e:
-                    logger.error(f"❌ HTTP download failed: {e}")
-                    raise Exception(f"Cannot download file: {e}")
-            
-            # ローカルファイルパス（llama_parse style）  
-            elif not file.blob.startswith('/files/'):
-                logger.info("📂 Attempting local file path")
-                try:
-                    return fitz.open(file.blob)
-                except Exception as e:
-                    logger.error(f"❌ Local file access failed: {e}")
-                    raise Exception(f"Cannot access file: {file.blob}")
-                    
-            # Dify内部パスの場合（最後のフォールバック）
-            else:  # file.blob.startswith('/files/')
-                logger.warning("🔄 Attempting Dify internal file server (fallback)")
-                
-                # 包括的なベースURL一覧（優先順位順）
-                base_urls = [
-                    os.getenv('FILES_URL', 'http://localhost'),  # 環境変数優先
-                    'http://localhost',           # 標準（ポートなし）
-                    'http://localhost:80',        # HTTP標準ポート
-                    'http://localhost:8000',      # 開発用ポート
-                    'http://localhost:5000',      # Flask標準
-                    'http://localhost:3000',      # Node.js標準
-                    'http://127.0.0.1',          # IP直接（ポートなし）
-                    'http://127.0.0.1:80',       # IP + HTTP標準ポート
-                    'http://127.0.0.1:8000',     # IP + 開発ポート
-                    'http://dify-web',            # Docker内部ネットワーク
-                    'http://nginx',               # Nginx経由
-                    'http://api',                 # APIサーバー直接
-                    'http://dify-api',            # Dify APIサーバー
-                ]
-                
-                successful_url = None
-                last_error = None
-                
-                for base_url in base_urls:
-                    full_url = f"{base_url}{file.blob}"
-                    try:
-                        logger.info(f"Attempting: {full_url}")
-                        response = requests.get(full_url, timeout=15)
-                        
-                        if response.status_code == 200 and len(response.content) > 0:
-                            logger.info(f"✅ Success with: {full_url}")
-                            file_bytes = io.BytesIO(response.content)
-                            successful_url = full_url
-                            return fitz.open(stream=file_bytes, filetype="pdf")
-                        else:
-                            logger.warning(f"❌ HTTP {response.status_code} from: {full_url}")
-                            
-                    except requests.exceptions.ConnectionError as e:
-                        logger.debug(f"🔌 Connection refused: {full_url}")
-                        last_error = e
-                        continue
-                    except requests.exceptions.Timeout as e:
-                        logger.debug(f"⏰ Timeout: {full_url}")
-                        last_error = e
-                        continue
-                    except Exception as e:
-                        logger.debug(f"❓ Other error for {full_url}: {type(e).__name__}: {e}")
-                        last_error = e
-                        continue
-                
-                # すべて失敗した場合の詳細エラー
-                error_msg = (f"❌ Cannot access Dify file server. Tried {len(base_urls)} URLs.\n"
-                           f"File path: {file.blob}\n"
-                           f"Last error: {type(last_error).__name__}: {last_error}\n"
-                           f"💡 Solutions:\n"
-                           f"1. Check if Dify file server is running\n"
-                           f"2. Set FILES_URL environment variable\n"
-                           f"3. Upload files as binary data instead of file paths")
-                logger.error(error_msg)
-                raise Exception(error_msg)
-                
-        else:
-            raise ValueError(f"Unsupported file.blob type: {type(file.blob)}")
+                except Exception as url_error:
+                    logger.error(f"URL download failed: {url_error}")
+                    raise Exception(f"ファイル処理に失敗: blob処理エラー({blob_error}), URL取得エラー({url_error})")
+            else:
+                logger.error(f"No file.url available, blob error: {blob_error}")
+                raise Exception(f"ファイルにアクセスできません: {blob_error}")
     
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage]:
         """
@@ -137,9 +85,21 @@ class PdfToImagesTool(Tool):
             ToolInvokeMessage: 変換された画像ファイルを含むメッセージ
         """
         
-        if tool_parameters.get("files") is None:
+        # 入力パラメータのデバッグ出力
+        logger.info(f"Tool invoked with parameters: {list(tool_parameters.keys())}")
+        
+        files = tool_parameters.get("files")
+        if files is None:
+            logger.warning("No files parameter provided")
             yield self.create_text_message("PDFファイルが提供されていません。")
             return
+        
+        logger.info(f"Received {len(files)} files")
+        for i, file in enumerate(files):
+            logger.info(f"File {i+1}: {file.filename} ({file.mime_type}, {file.size} bytes)")
+            if hasattr(file, 'url'):
+                logger.info(f"  URL: {file.url}")
+
             
         try:
             params = ToolParameters(**tool_parameters)
@@ -164,10 +124,7 @@ class PdfToImagesTool(Tool):
                 logger.info(f"PDFファイルを処理中: {pdf_file.filename}")
                 logger.info(f"ファイルオブジェクトの属性: {dir(pdf_file)}")
                 
-                # 動的ファイル処理：file.blobの型に応じて適切に処理
-                logger.info(f"File blob type: {type(pdf_file.blob)}")
-                logger.info(f"File blob content preview: {str(pdf_file.blob)[:100] if isinstance(pdf_file.blob, str) else f'Binary data: {len(pdf_file.blob)} bytes'}")
-                
+                # 公式パターンに基づくファイル処理
                 pdf_document = self._open_pdf_from_file(pdf_file)
                 file_pages = len(pdf_document)
                 total_pages += file_pages

@@ -1,6 +1,6 @@
-version: 0.0.1
+version: 1.0.0
 type: plugin
-author: your-name
+author: atoy0m0
 name: pdf-to-images
 label:
   en_US: pdf-to-images
@@ -21,7 +21,7 @@ plugins:
   tools:
     - provider/pdf-to-images.yaml
 meta:
-  version: 0.0.1
+  version: 1.0.0
   arch:
     - amd64
     - arm64

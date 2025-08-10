@@ -700,6 +700,9 @@ For detailed processing flow and architecture diagrams, see: [`docs/processing-f
 - **Cause**: Using wrong REMOTE INSTALL KEY
 - **Solution**: Ensure KEY are valid from debug panel on Dify GUI. If KEY is wrong, update .env "REMOTE_INSTALL_KEY=********-****-****-****-************".
 
+**Issue**: "PluginDaemonBadRequestError:"
+- **Solution**: 
+
 **Issue**: "変換できるPDFファイルがありませんでした"
 - **Solution**: Ensure PDF files are valid and not corrupted. Check file permissions.
 
@@ -720,6 +723,11 @@ Enable debug logging for detailed error information:
 ```python
 import logging
 logging.basicConfig(level=logging.DEBUG)
+```
+
+### check docker log
+```bash
+docker compose logs -f plugin_daemon
 ```
 
 ## 📊 Performance Notes
