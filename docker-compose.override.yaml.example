@@ -1,0 +1,10 @@
+services:
+  plugin_daemon:
+    environment:
+      # Enable signature verification for production security
+      FORCE_VERIFYING_SIGNATURE: true
+      THIRD_PARTY_SIGNATURE_VERIFICATION_ENABLED: true
+      THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/my_key_pair.public.pem
+    volumes:
+      # Mount your public key for signature verification
+      - "./my_key_pair.public.pem:/app/storage/my_key_pair.public.pem:ro"
