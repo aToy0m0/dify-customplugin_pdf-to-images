@@ -25,12 +25,7 @@ PDF to Images conversion is a crucial process in document processing workflows, 
 
 ### Installation Methods
 
-#### 1. From Plugin Marketplace (Recommended)
-- Navigate to the Dify Plugin Marketplace
-- Search for "PDF to Images"
-- Click "Install" to add it to your workspace
-
-#### 2. Manual Installation with Signature Verification (Production)
+#### 1. Manual Installation with Signature Verification (Recommended)
 ```bash
 # Clone the repository
 git clone https://github.com/aToy0m0/dify-customplugin_pdf-to-images.git
@@ -45,7 +40,7 @@ uv pip install -r requirements.txt
 ../dify-plugin signature sign ./pdf-to-images.difypkg -p ../keys/your_private_key.pem
 ```
 
-#### 3. Development Mode Installation
+#### 2. Development Mode Installation
 ```bash
 # Setup development environment
 echo "INSTALL_METHOD=remote" > .env
@@ -57,52 +52,15 @@ echo "FILES_URL=http://localhost:8000" >> .env
 python -m main
 ```
 
+#### 3. From Plugin Marketplace (comming soon)
+- Navigate to the Dify Plugin Marketplace
+- Search for "PDF to Images"
+- Click "Install" to add it to your workspace
+
 ### Basic Usage
 
-Once installed, you can use the PDF to Images plugin in three ways:
-
-#### 1. Agent Applications
-Add the PDF to Images tool to your Agent and interact naturally:
-
-```
-User: "Convert this PDF to images and analyze the content"
-Agent: *Uses PDF to Images tool to convert and then analyzes with vision model*
-```
-
-#### 2. Chatflow Applications
-Add a PDF to Images tool node to your chatflow for automated document processing workflows.
-
-#### 3. Workflow Applications
-Integrate PDF conversion into complex automation pipelines for document analysis.
-
-## 📖 Usage Examples
-
-### Basic PDF Conversion
-```yaml
-# Simple PDF to PNG conversion at web resolution
-inputs:
-  files: [document.pdf]
-  dpi: 72
-  image_format: "PNG"
-```
-
-### High-Quality Document Processing
-```yaml
-# High-resolution conversion for detailed analysis
-inputs:
-  files: [technical_document.pdf]
-  dpi: 300
-  image_format: "PNG"
-```
-
-### Batch Processing Multiple PDFs
-```yaml
-# Process multiple documents simultaneously
-inputs:
-  files: [report1.pdf, report2.pdf, presentation.pdf]
-  dpi: 150
-  image_format: "JPEG"
-```
+Once installed, you can use the PDF to Images plugin in Dify studio.
+Create workflow or chatflow and use this plugin from "add block".
 
 ## ⚙️ Configuration
 
@@ -205,9 +163,10 @@ graph TB
     FILES --> PLUGIN
     PLUGIN --> IMAGES
     
-    classDef docker fill:#e1f5fe
-    classDef plugin fill:#fff3e0  
-    classDef external fill:#f3e5f5
+    %% 背景色と文字色を両方指定
+    classDef docker fill:#e1f5fe,color:#000,font-weight:bold
+    classDef plugin fill:#fff3e0,color:#000,font-weight:bold  
+    classDef external fill:#f3e5f5,color:#000,font-weight:bold
     
     class DIFY,WEB,API,DAEMON,FS,VOL docker
     class PLUGIN,PYMUPDF,DEPS,ENV,KEYS plugin
@@ -335,6 +294,9 @@ FILES_URL=http://localhost:8000
 LOG_LEVEL=INFO
 EOF
 ```
+
+if you don't know your key, see below document.
+https://docs.dify.ai/plugin-dev-en/0222-tool-plugin#debugging-the-plugin
 
 #### Debug Mode
 ```bash
@@ -578,7 +540,7 @@ The plugin handles several error scenarios:
 | `fitz.FileDataError` | Invalid PDF file | "Invalid PDF file: {filename}" |
 | `Exception` | General processing error | "PDF {index}の処理中にエラーが発生しました: {error}" |
 
-## 🧪 Testing
+<!-- ## 🧪 Testing
 
 ### Manual Testing
 1. Install the plugin in your Dify workspace
@@ -602,7 +564,7 @@ def test_pdf_conversion():
     }))
     assert len(result) > 0
     assert "変換完了" in result[-1].message
-```
+``` -->
 
 ## 🤝 Contributing
 
@@ -733,6 +695,10 @@ cp new_plugin_key.public.pem ~/dify/docker/volumes/plugin_daemon/public_keys/
 For detailed processing flow and architecture diagrams, see: [`docs/processing-flow.md`](docs/processing-flow.md)
 
 ### Runtime Issues
+
+**Issue**: "ERROR:dify_plugin.core.server.tcp.request_reader:An error occurred while parsing the data: b'handshake failed, invalid key'"
+- **Cause**: Using wrong REMOTE INSTALL KEY
+- **Solution**: Ensure KEY are valid from debug panel on Dify GUI. If KEY is wrong, update .env "REMOTE_INSTALL_KEY=********-****-****-****-************".
 
 **Issue**: "変換できるPDFファイルがありませんでした"
 - **Solution**: Ensure PDF files are valid and not corrupted. Check file permissions.
