@@ -1,0 +1,333 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: pdf-to-images_sample_en
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.2.3@5a7f82fa86e28332ad51941d0b491c1e8a38ead539656442f7bf4c6129cd15fa
+- current_identifier: null
+  type: package
+  value:
+    plugin_unique_identifier: atoy0m0/pdf-to-images:1.0.0@33149c55ac745825855ecc6d996f872bac84797a2bea36b65358a3daf000cf40
+kind: app
+version: 0.3.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      - document
+      allowed_file_upload_methods:
+      - local_file
+      enabled: true
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: tool
+      id: 1754841203825-source-1754875738481-target
+      source: '1754841203825'
+      sourceHandle: source
+      target: '1754875738481'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: llm
+      id: 1754875738481-source-llm-target
+      source: '1754875738481'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: llm-source-1754875743616-target
+      source: llm
+      sourceHandle: source
+      target: '1754875743616'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables: []
+      height: 54
+      id: '1754841203825'
+      position:
+        x: 80
+        y: 282
+      positionAbsolute:
+        x: 80
+        y: 282
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}
+
+
+            {{#sys.files#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 646ad67b-9554-4d3b-8953-983357b83e72
+          role: system
+          text: ''
+        selected: false
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1754875738481'
+            - files
+          enabled: true
+      height: 90
+      id: llm
+      position:
+        x: 680
+        y: 282
+      positionAbsolute:
+        x: 680
+        y: 282
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: form
+          human_description:
+            en_US: Select one or more PDF files to convert to images
+            ja_JP: 画像に変換するPDFファイルを1つまたは複数選択してください
+            pt_BR: Selecione um ou mais arquivos PDF para converter em imagens
+            zh_Hans: 选择要转换为图像的一个或多个PDF文件
+          label:
+            en_US: PDF Files
+            ja_JP: PDFファイル
+            pt_BR: Arquivos PDF
+            zh_Hans: PDF文件
+          llm_description: Array of PDF files to be converted to images. Each page
+            of each PDF will be converted to a separate image.
+          max: null
+          min: null
+          name: files
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: files
+        - auto_generate: null
+          default: 72
+          form: llm
+          human_description:
+            en_US: Image resolution in DPI (dots per inch). Higher values produce
+              better quality but larger files.
+            ja_JP: DPI（ドット・パー・インチ）での画像解像度。高い値ほど品質が良くなりますがファイルサイズも大きくなります。
+            pt_BR: Resolução da imagem em DPI (pontos por polegada). Valores maiores
+              produzem melhor qualidade mas arquivos maiores.
+            zh_Hans: 以DPI（每英寸点数）为单位的图像分辨率。数值越高质量越好但文件越大。
+          label:
+            en_US: Resolution (DPI)
+            ja_JP: 解像度 (DPI)
+            pt_BR: Resolução (DPI)
+            zh_Hans: 分辨率 (DPI)
+          llm_description: 'Resolution for the output images in DPI. Default is 72.
+            Common values: 72 (web), 150 (standard), 300 (high quality).'
+          max: null
+          min: null
+          name: dpi
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: number
+        - auto_generate: null
+          default: PNG
+          form: form
+          human_description:
+            en_US: Output image format. PNG for lossless quality, JPEG for smaller
+              file sizes.
+            ja_JP: 出力画像フォーマット。PNGは可逆圧縮、JPEGはファイルサイズが小さくなります。
+            pt_BR: Formato da imagem de saída. PNG para qualidade sem perda, JPEG
+              para arquivos menores.
+            zh_Hans: 输出图像格式。PNG为无损质量，JPEG文件大小更小。
+          label:
+            en_US: Image Format
+            ja_JP: 画像フォーマット
+            pt_BR: Formato de Imagem
+            zh_Hans: 图像格式
+          llm_description: Output format for the converted images. PNG provides lossless
+            quality, JPEG provides smaller file sizes.
+          max: null
+          min: null
+          name: image_format
+          options:
+          - icon: ''
+            label:
+              en_US: PNG (Lossless)
+              ja_JP: PNG（可逆圧縮）
+              pt_BR: PNG (Sem Perda)
+              zh_Hans: PNG（无损压缩）
+            value: PNG
+          - icon: ''
+            label:
+              en_US: JPEG (Compressed)
+              ja_JP: JPEG（圧縮）
+              pt_BR: JPEG (Comprimido)
+              zh_Hans: JPEG（压缩）
+            value: JPEG
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: select
+        params:
+          dpi: ''
+          files: ''
+          image_format: ''
+        provider_id: atoy0m0/pdf-to-images/pdf-to-images
+        provider_name: atoy0m0/pdf-to-images/pdf-to-images
+        provider_type: builtin
+        selected: false
+        title: PDF to Images Converter
+        tool_configurations:
+          files:
+            type: variable
+            value:
+            - sys
+            - files
+          image_format:
+            type: constant
+            value: PNG
+        tool_description: Convert PDF pages to high-quality images using PyMuPDF.
+          Supports multiple PDFs and customizable resolution.
+        tool_label: PDF to Images Converter
+        tool_name: pdf-to-images
+        tool_parameters:
+          dpi:
+            type: constant
+            value: 72
+        type: tool
+        version: '2'
+      height: 148
+      id: '1754875738481'
+      position:
+        x: 384
+        y: 282
+      positionAbsolute:
+        x: 384
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#llm.text#}}'
+        desc: ''
+        selected: false
+        title: Answer
+        type: answer
+        variables: []
+      height: 104
+      id: '1754875743616'
+      position:
+        x: 984
+        y: 282
+      positionAbsolute:
+        x: 984
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 13.808738719749954
+      y: 166.87533339276348
+      zoom: 0.757858283255199
