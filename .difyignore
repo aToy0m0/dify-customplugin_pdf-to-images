@@ -182,3 +182,10 @@ Thumbs.db
 #  To prevent packaging repetitively
 *.difypkg
 
+# Development documentation
+docs/
+PLUGIN_DEPLOYMENT_GUIDE.md
+GUIDE.md
+
+# Development only files (keep README.md and PRIVACY.md for users)
+

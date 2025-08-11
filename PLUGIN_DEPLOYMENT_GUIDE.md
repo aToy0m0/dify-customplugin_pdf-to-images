@@ -55,15 +55,19 @@ pdf-to-images/
 ├── requirements.txt        # Python dependencies
 ├── main.py                # Entry point
 ├── .env                   # Environment variables
+├── PRIVACY.md             # Privacy policy document
 ├── tools/
 │   ├── pdf-to-images.py   # Main tool implementation
 │   └── pdf-to-images.yaml # Tool configuration
 ├── provider/
 │   ├── pdf-to-images.py   # Provider implementation
 │   └── pdf-to-images.yaml # Provider configuration
-└── _assets/
-    ├── icon.svg           # Plugin icon
-    └── icon-dark.svg      # Dark theme icon
+├── _assets/
+│   ├── icon.svg           # Plugin icon
+│   └── icon-dark.svg      # Dark theme icon
+└── docs/                  # Documentation and examples
+    ├── pdf-to-images_sample.yml          # Sample Dify application
+    └── docker-compose.override.yaml.example  # Docker configuration template
 ```
 
 ### Key Components
@@ -275,6 +279,26 @@ python -m main
 # Connection URL: localhost:5003
 ```
 
+#### Sample Application Setup
+To test the plugin functionality, you can import the sample application:
+
+1. **Import Sample Application**
+   ```bash
+   # The sample application YAML is located at:
+   # docs/pdf-to-images_sample.yml
+   ```
+
+2. **In Dify Studio**:
+   - Go to Studio → Create New App → Import DSL
+   - Upload `docs/pdf-to-images_sample.yml`
+   - This creates a sample workflow with PDF to Images tool configured
+
+3. **Sample Application Features**:
+   - File upload interface for PDF files
+   - PDF to Images tool with optimal settings (72 DPI, PNG format)
+   - LLM vision integration to analyze converted images
+   - Complete workflow from PDF upload to visual analysis
+
 ### Production Deployment
 
 #### Signature Key Generation (Official Method)
@@ -305,6 +329,17 @@ cp my_plugin_key.public.pem ~/dify/docker/volumes/plugin_daemon/public_keys/
 ```
 
 **Configure docker-compose.override.yaml:**
+
+You can use the provided example file as a starting point:
+```bash
+# Copy the example configuration
+cp docs/docker-compose.override.yaml.example docker-compose.override.yaml
+
+# Edit with your specific key paths
+nano docker-compose.override.yaml
+```
+
+Example configuration:
 ```yaml
 services:
   plugin_daemon:
