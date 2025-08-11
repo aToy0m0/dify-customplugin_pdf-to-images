@@ -2,10 +2,10 @@ identity:
   name: "pdf-to-images"
   author: "aToy0m0"
   label:
-    en_US: "PDF to Images Converter"
-    ja_JP: "PDF画像変換ツール"
-    zh_Hans: "PDF转图片工具"
-    pt_BR: "Conversor PDF para Imagens"
+    en_US: PDF-to-Images
+    ja_JP: PDF-to-Images
+    zh_Hans: PDF-to-Images
+    pt_BR: PDF-to-Images
 description:
   human:
     en_US: "Convert PDF pages to high-quality images using PyMuPDF. Supports multiple PDFs and customizable resolution."

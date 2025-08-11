@@ -28,6 +28,7 @@ venv/
 ENV/
 env/
 .env.local
+.env.cloud.dify.ai
 
 # IDE
 .vscode/

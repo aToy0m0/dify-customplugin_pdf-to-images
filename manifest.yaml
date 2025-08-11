@@ -3,10 +3,10 @@ type: plugin
 author: atoy0m0
 name: pdf-to-images
 label:
-  en_US: pdf-to-images
-  ja_JP: pdf-to-images
-  zh_Hans: pdf-to-images
-  pt_BR: pdf-to-images
+  en_US: PDF-to-Images
+  ja_JP: PDF-to-Images
+  zh_Hans: PDF-to-Images
+  pt_BR: PDF-to-Images
 description:
   en_US: Convert PDF pages to images using PyMuPDF
   ja_JP: Convert PDF pages to images using PyMuPDF
