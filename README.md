@@ -25,20 +25,11 @@ PDF to Images conversion is a crucial process in document processing workflows, 
 
 ### Installation Methods
 
-#### 1. Manual Installation with Signature Verification (Recommended)
-```bash
-# Clone the repository
-git clone https://github.com/aToy0m0/dify-customplugin_pdf-to-images.git
-cd dify-customplugin_pdf-to-images/pdf-to-images
+#### 1. Manual Installation with Signature Verification (For Production)
 
-# Install dependencies
-uv venv && source .venv/bin/activate  # または python -m venv .venv
-uv pip install -r requirements.txt
+**Note**: This method requires advanced setup and is recommended for production environments only. For quickstart development, see [Local Development](#local-development) section below.
 
-# Package and sign the plugin
-../dify-plugin plugin package ./
-../dify-plugin signature sign ./pdf-to-images.difypkg -p ../keys/your_private_key.pem
-```
+This method involves packaging, signing, and deploying the plugin. The complete process is detailed in the [Production Deployment](#production-deployment) section.
 
 #### 2. Development Mode Installation
 ```bash
