@@ -3,6 +3,7 @@
 ## Overview
 
 **PDF to Images** is a powerful Dify plugin that converts PDF files to high-quality images using PyMuPDF. It enables seamless integration of PDF processing capabilities into your AI applications, making it easy to extract visual information from documents for further analysis by LLM vision models. Perfect for document processing workflows that need to analyze visual content, forms, diagrams, and charts.
+ifyou can't find the file input palamater, please update dify to latest version.
 
 ## Features
 
