@@ -81,17 +81,6 @@ Integrate PDF to Images into your pipeline by following these steps:
 
 ![Workflow Usage](./docs/images/pdf-to-images_common_en.png)
 
-### Agent Apps
-
-Add the PDF to Images tool in the Agent application for dynamic PDF processing:
-
-1. Add the PDF to Images tool to the Agent application.
-2. Upload PDF files or provide file paths in the chat.
-3. The tool will convert PDF pages to images, making visual content accessible to the LLM.
-4. The extracted images can be processed and analyzed by LLM vision models.
-
-![Agent Usage](./_assets/pdf-to-images-agent.png)
-
 ## Advanced Features
 
 ### Batch Processing
