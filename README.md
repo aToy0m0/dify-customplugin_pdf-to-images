@@ -4,7 +4,11 @@
 
 **PDF to Images** is a powerful Dify plugin that converts PDF files to high-quality images using PyMuPDF. It enables seamless integration of PDF processing capabilities into your AI applications, making it easy to extract visual information from documents for further analysis by LLM vision models. Perfect for document processing workflows that need to analyze visual content, forms, diagrams, and charts.
 
+## torouble shoot tips
 If you can't find the file input palamater, please update dify to latest version.
+
+## sample
+I hope files in /docs will help you.
 
 ## Features
 
@@ -30,17 +34,16 @@ To set up the PDF to Images plugin, follow these steps:
 3. **Ready to Use**
    - The plugin is immediately ready for use after installation.
 
-![Configuration Screenshot](./_assets/pdf-to-images-config.png)
+![Configuration Screenshot](./docs/images/install.png)
 
 ## Tool Parameters
 
 The PDF to Images tool provides three configurable parameters:
 
 ### File Input
+![File Input](./docs/images/params.png)
 
 **PDF Files**: Select one or multiple PDF files to convert to images.
-
-![File Input](./_assets/pdf-to-images-files.png)
 
 ### Resolution Settings
 
@@ -49,15 +52,11 @@ The PDF to Images tool provides three configurable parameters:
 - **150 DPI**: Standard quality (balanced size and quality)  
 - **300 DPI**: High quality for printing (larger file size)
 
-![DPI Settings](./_assets/pdf-to-images-dpi.png)
-
 ### Output Format
 
 **Image Format**: Choose between PNG and JPEG output formats.
 - **PNG**: Lossless compression, perfect for text and diagrams
 - **JPEG**: Compressed format, suitable for photos and illustrations
-
-![Format Selection](./_assets/pdf-to-images-format.png)
 
 ### Advanced Configuration
 
@@ -79,7 +78,7 @@ Integrate PDF to Images into your pipeline by following these steps:
 3. Define the input variables and UI elements for your use case.
 4. Execute the pipeline to trigger PDF conversion and generate images.
 
-![Workflow Usage](./_assets/pdf-to-images-workflow.png)
+![Workflow Usage](./docs/images/pdf-to-images_common_en.png)
 
 ### Agent Apps
 
@@ -115,8 +114,6 @@ Each converted image includes comprehensive metadata:
 
 | Aspect | Specification | Notes |
 |--------|---------------|-------|
-| **Memory Usage** | ~2MB per PDF page | Efficient streaming processing |
-| **Processing Speed** | ~0.5s per page @ 72 DPI | Scales with DPI setting |
 | **File Size Support** | Limited by available RAM | No artificial size limits |
 | **Supported DPI Range** | 72-300 DPI | Higher DPI = larger output files |
 | **Concurrent Processing** | Sequential | Ensures memory stability |

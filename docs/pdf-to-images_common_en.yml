@@ -1,0 +1,765 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: pdf-to-images_common_en
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.2.3@5a7f82fa86e28332ad51941d0b491c1e8a38ead539656442f7bf4c6129cd15fa
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: atoy0m0/pdf-to-images:1.0.0@7e5edabb81f2a1721c44202b1ebcd31793de089ec4e11c74270d0d3fc2df8a62
+kind: app
+version: 0.3.0
+workflow:
+  conversation_variables:
+  - description: ''
+    id: ee0147b5-6630-4179-a7b0-ab88d0cb095a
+    name: userfiles
+    selector:
+    - conversation
+    - userfiles
+    value: []
+    value_type: array[string]
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      - document
+      allowed_file_upload_methods:
+      - local_file
+      enabled: true
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: llm-source-1754875743616-target
+      selected: false
+      source: llm
+      sourceHandle: source
+      target: '1754875743616'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: if-else
+      id: 1754841203825-source-1755525436178-target
+      selected: false
+      source: '1754841203825'
+      sourceHandle: source
+      target: '1755525436178'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1755525436178-true-1755525512695-target
+      selected: false
+      source: '1755525436178'
+      sourceHandle: 'true'
+      target: '1755525512695'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: assigner
+      id: 1755525512695-source-1755525669408-target
+      selected: false
+      source: '1755525512695'
+      sourceHandle: source
+      target: '1755525669408'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: document-extractor
+      id: 1755525436178-2ce90739-aff0-4fd2-97de-360876e7397f-1755525701073-target
+      selected: false
+      source: '1755525436178'
+      sourceHandle: 2ce90739-aff0-4fd2-97de-360876e7397f
+      target: '1755525701073'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: tool
+      id: 1755525708180-false-1754875738481-target
+      selected: false
+      source: '1755525708180'
+      sourceHandle: 'false'
+      target: '1754875738481'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: llm
+      id: 1754875738481-source-1755525941738-target
+      selected: false
+      source: '1754875738481'
+      sourceHandle: source
+      target: '1755525941738'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: assigner
+      id: 1755525941738-source-17555259538200-target
+      selected: false
+      source: '1755525941738'
+      sourceHandle: source
+      target: '17555259538200'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: assigner
+        targetType: llm
+      id: 1755525669408-source-llm-target
+      selected: false
+      source: '1755525669408'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: assigner
+        targetType: llm
+      id: 17555259538200-source-llm-target
+      selected: false
+      source: '17555259538200'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: assigner
+      id: 1755525708180-true-17555261146260-target
+      selected: false
+      source: '1755525708180'
+      sourceHandle: 'true'
+      target: '17555261146260'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: assigner
+        targetType: llm
+      id: 17555261146260-source-llm-target
+      selected: false
+      source: '17555261146260'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1755525436178-false-llm-target
+      selected: false
+      source: '1755525436178'
+      sourceHandle: 'false'
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: document-extractor
+        targetType: if-else
+      id: 1755525701073-source-1755525708180-target
+      selected: false
+      source: '1755525701073'
+      sourceHandle: source
+      target: '1755525708180'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables: []
+      height: 54
+      id: '1754841203825'
+      position:
+        x: 362.79397204114497
+        y: 358.1961334138375
+      positionAbsolute:
+        x: 362.79397204114497
+        y: 358.1961334138375
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 50
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 646ad67b-9554-4d3b-8953-983357b83e72
+          role: system
+          text: 'Please respond to user inquiries in a friendly manner.
+
+
+            # Attachment contents
+
+            {{#conversation.userfiles#}}'
+        selected: false
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1754875738481'
+            - files
+          enabled: false
+      height: 90
+      id: llm
+      position:
+        x: 1194.6566000307962
+        y: 821.176344323803
+      positionAbsolute:
+        x: 1194.6566000307962
+        y: 821.176344323803
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: form
+          human_description:
+            en_US: Select one or more PDF files to convert to images
+            ja_JP: 画像に変換するPDFファイルを1つまたは複数選択してください
+            pt_BR: Selecione um ou mais arquivos PDF para converter em imagens
+            zh_Hans: 选择要转换为图像的一个或多个PDF文件
+          label:
+            en_US: PDF Files
+            ja_JP: PDFファイル
+            pt_BR: Arquivos PDF
+            zh_Hans: PDF文件
+          llm_description: Array of PDF files to be converted to images. Each page
+            of each PDF will be converted to a separate image.
+          max: null
+          min: null
+          name: files
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: files
+        - auto_generate: null
+          default: 72
+          form: llm
+          human_description:
+            en_US: Image resolution in DPI (dots per inch). Higher values produce
+              better quality but larger files.
+            ja_JP: DPI（ドット・パー・インチ）での画像解像度。高い値ほど品質が良くなりますがファイルサイズも大きくなります。
+            pt_BR: Resolução da imagem em DPI (pontos por polegada). Valores maiores
+              produzem melhor qualidade mas arquivos maiores.
+            zh_Hans: 以DPI（每英寸点数）为单位的图像分辨率。数值越高质量越好但文件越大。
+          label:
+            en_US: Resolution (DPI)
+            ja_JP: 解像度 (DPI)
+            pt_BR: Resolução (DPI)
+            zh_Hans: 分辨率 (DPI)
+          llm_description: 'Resolution for the output images in DPI. Default is 72.
+            Common values: 72 (web), 150 (standard), 300 (high quality).'
+          max: null
+          min: null
+          name: dpi
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: number
+        - auto_generate: null
+          default: PNG
+          form: form
+          human_description:
+            en_US: Output image format. PNG for lossless quality, JPEG for smaller
+              file sizes.
+            ja_JP: 出力画像フォーマット。PNGは可逆圧縮、JPEGはファイルサイズが小さくなります。
+            pt_BR: Formato da imagem de saída. PNG para qualidade sem perda, JPEG
+              para arquivos menores.
+            zh_Hans: 输出图像格式。PNG为无损质量，JPEG文件大小更小。
+          label:
+            en_US: Image Format
+            ja_JP: 画像フォーマット
+            pt_BR: Formato de Imagem
+            zh_Hans: 图像格式
+          llm_description: Output format for the converted images. PNG provides lossless
+            quality, JPEG provides smaller file sizes.
+          max: null
+          min: null
+          name: image_format
+          options:
+          - icon: ''
+            label:
+              en_US: PNG (Lossless)
+              ja_JP: PNG（可逆圧縮）
+              pt_BR: PNG (Sem Perda)
+              zh_Hans: PNG（无损压缩）
+            value: PNG
+          - icon: ''
+            label:
+              en_US: JPEG (Compressed)
+              ja_JP: JPEG（圧縮）
+              pt_BR: JPEG (Comprimido)
+              zh_Hans: JPEG（压缩）
+            value: JPEG
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: select
+        params:
+          dpi: ''
+          files: ''
+          image_format: ''
+        provider_id: atoy0m0/pdf-to-images/pdf-to-images
+        provider_name: atoy0m0/pdf-to-images/pdf-to-images
+        provider_type: builtin
+        selected: false
+        title: PDF to Images Converter
+        tool_configurations:
+          files:
+            type: variable
+            value:
+            - sys
+            - files
+          image_format:
+            type: constant
+            value: PNG
+        tool_description: Convert PDF pages to high-quality images using PyMuPDF.
+          Supports multiple PDFs and customizable resolution.
+        tool_label: PDF to Images Converter
+        tool_name: pdf-to-images
+        tool_parameters:
+          dpi:
+            type: constant
+            value: 150
+        type: tool
+        version: '2'
+      height: 148
+      id: '1754875738481'
+      position:
+        x: 922.8223655707479
+        y: 598.3358797156177
+      positionAbsolute:
+        x: 922.8223655707479
+        y: 598.3358797156177
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#llm.text#}}'
+        desc: ''
+        selected: false
+        title: Answer
+        type: answer
+        variables: []
+      height: 104
+      id: '1754875743616'
+      position:
+        x: 1463.2236585763
+        y: 821.176344323803
+      positionAbsolute:
+        x: 1463.2236585763
+        y: 821.176344323803
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: 8b937b94-03d3-4039-bfbc-d177f72ddace
+            sub_variable_condition:
+              case_id: f4520e90-2a78-4ac9-9719-6bd8ffe5b7e8
+              conditions:
+              - comparison_operator: in
+                id: 1aadfa11-3d62-4e6e-af08-eb737488247a
+                key: type
+                value:
+                - image
+                varType: string
+              logical_operator: and
+            value: ''
+            varType: array[file]
+            variable_selector:
+            - sys
+            - files
+          id: 'true'
+          logical_operator: and
+        - case_id: 2ce90739-aff0-4fd2-97de-360876e7397f
+          conditions:
+          - comparison_operator: contains
+            id: c6974a2a-96a8-44bf-ab27-d0fb094153f6
+            sub_variable_condition:
+              case_id: 916c4c13-9f52-4733-9735-77a0a0d750f0
+              conditions:
+              - comparison_operator: in
+                id: c9751404-dcf1-4922-85eb-1e90ba208ec2
+                key: type
+                value:
+                - document
+                varType: string
+              logical_operator: and
+            value: ''
+            varType: array[file]
+            variable_selector:
+            - sys
+            - files
+          id: 2ce90739-aff0-4fd2-97de-360876e7397f
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: IF/ELSE
+        type: if-else
+      height: 222
+      id: '1755525436178'
+      position:
+        x: 368.33061876145825
+        y: 453.9104191281232
+      positionAbsolute:
+        x: 368.33061876145825
+        y: 453.9104191281232
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: c259ed8b-89dd-440f-b5f4-2770b18d9217
+          role: system
+          text: "You are in charge of image recognition in the AI flow. \n**IMPORTANT**\n\
+            Please answer only about what you read without any preamble such as \"\
+            This is the content, ...\", \"Here is the ...\""
+        selected: false
+        title: LLM 2
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - sys
+            - files
+          enabled: true
+      height: 90
+      id: '1755525512695'
+      position:
+        x: 661.3037525463569
+        y: 254.7019561010424
+      positionAbsolute:
+        x: 661.3037525463569
+        y: 254.7019561010424
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: append
+          value:
+          - '1755525512695'
+          - text
+          variable_selector:
+          - conversation
+          - userfiles
+          write_mode: over-write
+        selected: false
+        title: Variable Assigner
+        type: assigner
+        version: '2'
+      height: 88
+      id: '1755525669408'
+      position:
+        x: 1470.3665157191572
+        y: 254.7019561010424
+      positionAbsolute:
+        x: 1470.3665157191572
+        y: 254.7019561010424
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_array_file: true
+        selected: false
+        title: Doc Extractor
+        type: document-extractor
+        variable_selector:
+        - sys
+        - files
+      height: 92
+      id: '1755525701073'
+      position:
+        x: 661.3037525463569
+        y: 419.1571656651039
+      positionAbsolute:
+        x: 661.3037525463569
+        y: 419.1571656651039
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: d66f77a0-668a-4789-bed3-0cdf1aa745aa
+            value: '""'
+            varType: array[string]
+            variable_selector:
+            - '1755525701073'
+            - text
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: IF/ELSE 2
+        type: if-else
+      height: 126
+      id: '1755525708180'
+      position:
+        x: 922.8223655707479
+        y: 419.1571656651039
+      positionAbsolute:
+        x: 922.8223655707479
+        y: 419.1571656651039
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 646ec747-0b55-4386-bc79-da0b4c181007
+          role: system
+          text: "You are in charge of image recognition in the AI flow. \n**IMPORTANT**\n\
+            Please answer only about what you read without any preamble such as \"\
+            This is the content, ...\", \"Here is the ...\""
+        selected: false
+        title: LLM 3
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1754875738481'
+            - files
+          enabled: true
+      height: 90
+      id: '1755525941738'
+      position:
+        x: 1194.6566000307962
+        y: 598.3358797156177
+      positionAbsolute:
+        x: 1194.6566000307962
+        y: 598.3358797156177
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: append
+          value:
+          - '1755525941738'
+          - text
+          variable_selector:
+          - conversation
+          - userfiles
+          write_mode: over-write
+        selected: false
+        title: Variable Assigner (2)
+        type: assigner
+        version: '2'
+      height: 88
+      id: '17555259538200'
+      position:
+        x: 1463.2236585763
+        y: 598.3358797156177
+      positionAbsolute:
+        x: 1463.2236585763
+        y: 598.3358797156177
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: extend
+          value:
+          - '1755525701073'
+          - text
+          variable_selector:
+          - conversation
+          - userfiles
+          write_mode: over-write
+        selected: false
+        title: Variable Assigner (3)
+        type: assigner
+        version: '2'
+      height: 88
+      id: '17555261146260'
+      position:
+        x: 1457.5093728620145
+        y: 453.9104191281232
+      positionAbsolute:
+        x: 1457.5093728620145
+        y: 453.9104191281232
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: -249.60841578177735
+      y: -170.42397006229112
+      zoom: 1.0610015965572794
