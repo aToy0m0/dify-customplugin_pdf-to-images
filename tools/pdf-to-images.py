@@ -18,7 +18,7 @@ logger.addHandler(plugin_logger_handler)
 
 
 class ToolParameters(BaseModel):
-    files: list[File]
+    pdf_files: list[File]
     dpi: int = 72
     image_format: str = "PNG"
 
@@ -92,10 +92,40 @@ class PdfToImagesTool(Tool):
     def _fix_docker_url(self, url: str) -> str:
         """
         DockerコンテナネットワークでのURL修正
-        localhost を実際のサービス名に変換
+        相対パスや不完全URLを完全なURLに変換（複数ホストでフォールバック）
         """
+        # 相対パス（/files/...）の場合、複数のホストを試行
+        if url.startswith('/'):
+            # 複数の可能なホストを優先順位で試行（localhostを最優先）
+            hosts_to_try = [
+                'http://localhost',
+                'http://127.0.0.1', 
+                'http://nginx',
+                'http://web',
+                'http://api',
+                'http://dify-web',
+                'http://dify-api'
+            ]
+            
+            for host in hosts_to_try:
+                try:
+                    test_url = f"{host}{url}"
+                    # 短いタイムアウトでテスト
+                    response = requests.head(test_url, timeout=3)
+                    if response.status_code < 500:  # 4xxエラーでもファイルサーバーが応答していることを示す
+                        logger.info(f"✅ Docker URL fix successful: {url} → {test_url}")
+                        return test_url
+                except Exception as e:
+                    logger.debug(f"Host {host} failed: {e}")
+                    continue
+            
+            # すべて失敗した場合はlocalhostをデフォルトとする
+            fallback_url = f"http://localhost{url}"
+            logger.warning(f"⚠️ All Docker hosts failed, using fallback: {url} → {fallback_url}")
+            return fallback_url
+        
+        # localhostを含む場合の変換
         if 'localhost' in url:
-            # nginxを最優先で使用（Port 80でHTTPサーバーが動作）
             modified_url = url.replace('localhost', 'nginx')
             logger.info(f"Docker URL fix: {url} → {modified_url}")
             return modified_url
@@ -119,14 +149,14 @@ class PdfToImagesTool(Tool):
         # 入力パラメータのデバッグ出力
         logger.info(f"Tool invoked with parameters: {list(tool_parameters.keys())}")
         
-        files = tool_parameters.get("files")
-        if files is None:
-            logger.warning("No files parameter provided")
+        pdf_files = tool_parameters.get("pdf_files")
+        if pdf_files is None:
+            logger.warning("No pdf_files parameter provided")
             yield self.create_text_message("PDFファイルが提供されていません。")
             return
         
-        logger.info(f"Received {len(files)} files")
-        for i, file in enumerate(files):
+        logger.info(f"Received {len(pdf_files)} files")
+        for i, file in enumerate(pdf_files):
             logger.info(f"File {i+1}: {file.filename} ({file.mime_type}, {file.size} bytes)")
             if hasattr(file, 'url'):
                 logger.info(f"  URL: {file.url}")
@@ -138,7 +168,7 @@ class PdfToImagesTool(Tool):
             yield self.create_text_message(f"パラメータエラー: {str(e)}")
             return
         
-        pdf_files = params.files
+        pdf_files = params.pdf_files
         dpi = params.dpi
         image_format = params.image_format.upper()
         

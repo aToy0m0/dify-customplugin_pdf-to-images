@@ -14,7 +14,7 @@ description:
     pt_BR: "Converte páginas PDF em imagens de alta qualidade usando PyMuPDF. Suporta múltiplos PDFs e resolução personalizável."
   llm: "A tool that converts PDF files to images. Takes an array of PDF files and converts each page to an image with customizable DPI and format (PNG/JPEG). Returns base64-encoded images with metadata."
 parameters:
-  - name: files
+  - name: pdf_files
     type: files
     required: true
     label:
@@ -28,7 +28,7 @@ parameters:
       zh_Hans: "选择要转换为图像的一个或多个PDF文件"
       pt_BR: "Selecione um ou mais arquivos PDF para converter em imagens"
     llm_description: "Array of PDF files to be converted to images. Each page of each PDF will be converted to a separate image."
-    form: form
+    form: llm
   - name: dpi
     type: number
     required: false

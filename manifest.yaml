@@ -1,4 +1,4 @@
-version: 1.0.0
+version: 1.0.1
 type: plugin
 author: atoy0m0
 name: pdf-to-images
@@ -8,10 +8,10 @@ label:
   zh_Hans: PDF-to-Images
   pt_BR: PDF-to-Images
 description:
-  en_US: Convert PDF pages to images using PyMuPDF
-  ja_JP: Convert PDF pages to images using PyMuPDF
-  zh_Hans: Convert PDF pages to images using PyMuPDF
-  pt_BR: Convert PDF pages to images using PyMuPDF
+  en_US: Convert PDF pages to images using PyMuPDF. Cloud/Docker compatible. Supports v1.4.3 and later.
+  ja_JP: PyMuPDFを使用してPDFページを画像に変換。Cloud/Docker対応。v1.4.3以降対応。
+  zh_Hans: 使用PyMuPDF将PDF页面转换为图像。支持Cloud/Docker。兼容v1.4.3及更高版本。
+  pt_BR: Converte páginas PDF em imagens usando PyMuPDF. Compatível com Cloud/Docker. Suporta v1.4.3 e posteriores.
 icon: icon.svg
 icon_dark: icon-dark.svg
 resource:
@@ -21,7 +21,7 @@ plugins:
   tools:
     - provider/pdf-to-images.yaml
 meta:
-  version: 1.0.0
+  version: 1.0.1
   arch:
     - amd64
     - arm64
