@@ -26,7 +26,7 @@ echo "FILES_URL=http://localhost:8000" >> .env
 python -m main
 ```
 
-#### 3. From Plugin Marketplace (comming soon)
+#### 3. From Plugin Marketplace (Recommended）
 - Navigate to the Dify Plugin Marketplace
 - Search for "PDF to Images"
 - Click "Install" to add it to your workspace
