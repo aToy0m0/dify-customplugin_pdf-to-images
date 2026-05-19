@@ -126,7 +126,17 @@ For detailed development setup, deployment instructions, troubleshooting, and ad
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)** — see the [LICENSE](LICENSE) file for the full text.
+
+### Why AGPL-3.0?
+
+This plugin depends on [PyMuPDF](https://github.com/pymupdf/PyMuPDF), which is distributed under AGPL-3.0. AGPL-3.0 is a strong copyleft license, so any project that links to or distributes PyMuPDF must adopt a compatible (AGPL-3.0) license. To comply with this requirement, this plugin is also licensed under AGPL-3.0.
+
+### What this means for users
+
+- You are free to use, modify, and redistribute this plugin under the terms of AGPL-3.0.
+- If you modify this plugin and offer it to users over a network (e.g., embed it in a hosted service), AGPL-3.0 requires you to make the corresponding source code of your modified version available to those users.
+- If a more permissive license is required for your use case, consider replacing PyMuPDF with permissively licensed alternatives such as [pypdf](https://github.com/py-pdf/pypdf) or [pdf2image](https://github.com/Belval/pdf2image) and forking this plugin accordingly.
 
 ## Support
 
